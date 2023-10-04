@@ -50,9 +50,6 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  app.get("/urls.json", (req, res) =>{
-    console.log(body);
-  })
   for (let idCode in urlDatabase) {
     if (req.params.id === idCode) {
       const templateVars = {
@@ -75,3 +72,9 @@ app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
 });
+
+app.post("/urls/:id/delete", (req, res) => {
+  const { id } = req.params;
+  delete urlDatabase[id];
+  res.redirect("/urls");
+})
