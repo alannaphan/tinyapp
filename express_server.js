@@ -86,5 +86,5 @@ app.post("/urls/:id/update", (req, res) => {
     longURL = "http://" + longURL;
   }
   urlDatabase[id] = longURL;
-  res.redirect(`/urls/${id}`);
+  res.redirect("/urls");
 })
