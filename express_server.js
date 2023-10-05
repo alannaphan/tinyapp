@@ -13,7 +13,6 @@ const generateRandomString = () => {
 const iterateUsers = (userId) => {
   for (const ids in users) {
     if (ids === userId) {
-      // console.log (users[userId]);
       return users[userId];
     }
   }
@@ -69,6 +68,10 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  if (Object.keys(req.cookies).length === 0) {
+    res.redirect("/login");
+    return;
+  }
   let { longURL } = req.body;
   if (!longURL.includes("http://") && !longURL.includes("https://")) {
     longURL = "http://" + longURL;
@@ -82,6 +85,10 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: iterateUsers(req.cookies["userId"]),
   };
+  if (Object.keys(req.cookies).length === 0) {
+    res.redirect("/login");
+    return;
+  }
   res.render("urls_new", templateVars);
 });
 
@@ -136,7 +143,6 @@ app.post("/login", (req, res) => {
       return;
     } 
   } 
-  console.log(users, req.cookies);
   res.status(403).send("Status Code 403: Invalid Email or Password");
 });
 
@@ -151,6 +157,7 @@ app.get("/register", (req, res) => {
   };
   if (Object.keys(req.cookies).length !== 0) {
     res.redirect("/urls");
+    return;
   }
   res.render("register", templateVars);
 });
@@ -171,7 +178,6 @@ app.post("/register", (req, res) => {
   res.cookie("userId", randomId);
 } else {
   res.status(400).send("Status Code 400: Email already taken.");
-  console.log(users);
 }
   res.redirect("/urls");
 });
@@ -182,6 +188,7 @@ app.get("/login", (req, res) => {
   };
   if (Object.keys(req.cookies).length !== 0) {
     res.redirect("/urls");
+    return;
   }
   res.render("login", templateVars);
 })
