@@ -11,40 +11,9 @@ app.use(cookieSession({
   keys: ['flan'],
 }))
 
-const generateRandomString = () => {
-  return Math.random().toString(36).slice(2, 8);
-};
-
-const iterateUsers = (userId) => {
-  for (const ids in users) {
-    if (ids === userId) {
-      return users[userId];
-    }
-  }
-};
-
-const getUserByEmail = (email, database) => {
-  const userIds = Object.keys(database);
-  for (const singleUser of userIds) {
-    if (email === users[singleUser].email) {
-      return users[singleUser];
-    }
-  }
-  return null;
-};
-
-const urlsForUser = (id) => {
-  const urls = Object.keys(urlDatabase);
-  let userURLS = {};
-  for (const shortCode of urls) {
-    if (urlDatabase[shortCode].userID === id) {
-      userURLS[shortCode] = urlDatabase[shortCode];
-    }
-  }  return userURLS;
-};
+const { getUserByEmail, iterateUsers, generateRandomString, urlsForUser} = require("./helpers")
 
 const users = {
-
 };
 
 const urlDatabase = {
@@ -76,8 +45,8 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const templateVars = {
-    urls: urlsForUser(req.session.userId),
-    user: iterateUsers(req.session.userId),
+    urls: urlsForUser(req.session.userId, urlDatabase),
+    user: iterateUsers(req.session.userId, users),
   };
   res.render("urls_index", templateVars);
 });
@@ -101,7 +70,7 @@ app.post("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    user: iterateUsers(req.session.userId),
+    user: iterateUsers(req.session.userId, users),
   };
   if (Object.keys(req.session).length === 0) {
     res.redirect("/login");
@@ -111,13 +80,13 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  let userURLS = urlsForUser(req.session.userId);
+  let userURLS = urlsForUser(req.session.userId, urlDatabase);
   for (let idCode of Object.keys(userURLS)) {
     if (req.params.id === idCode) {
       const templateVars = {
         id: req.params.id,
         longURL: urlDatabase[req.params.id].longURL,
-        user: iterateUsers(req.session.userId),
+        user: iterateUsers(req.session.userId, users),
       };
       res.render("urls_show", templateVars);
       return;
@@ -125,7 +94,7 @@ app.get("/urls/:id", (req, res) => {
   }
   const templateVars = {
     id: req.params.id,
-    user: iterateUsers(req.session.userId),
+    user: iterateUsers(req.session.userId, users),
   };
   res
     .status(400)
@@ -155,7 +124,7 @@ app.post("/urls/:id/delete", (req, res) => {
     return;
   }
   const { id } = req.params;
-  let userURLS = urlsForUser(req.session.userId);
+  let userURLS = urlsForUser(req.session.userId, urlDatabase);
 
   if (userURLS[id].userID === req.session.userId) {
     delete urlDatabase[id];
@@ -176,7 +145,7 @@ app.post("/urls/:id", (req, res) => {
     return;
   }
   const { id } = req.params;
-  let userURLS = urlsForUser(req.session.userId);
+  let userURLS = urlsForUser(req.session.userId, urlDatabase);
 
   if (userURLS[id].userID === req.session.userId) {
     const { id } = req.params;
@@ -196,7 +165,7 @@ app.post("/urls/:id", (req, res) => {
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
-  const user = getUserByEmail(email, users);
+  let user = getUserByEmail(email, users);
   if (user) {
     if (bcrypt.compareSync(password, user.password)) {
       req.session.userId = user.id;
@@ -215,7 +184,7 @@ app.post("/logout", (req, res) => {
 
 app.get("/register", (req, res) => {
   const templateVars = {
-    user: iterateUsers(req.session.userId),
+    user: iterateUsers(req.session.userId, users),
   };
   if (Object.keys(req.session).length !== 0) {
     res.redirect("/urls");
@@ -246,7 +215,7 @@ app.post("/register", (req, res) => {
 
 app.get("/login", (req, res) => {
   const templateVars = {
-    user: iterateUsers(req.session.userId),
+    user: iterateUsers(req.session.userId, users),
   };
   if (Object.keys(req.session).length !== 0) {
     res.redirect("/urls");
