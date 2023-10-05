@@ -23,8 +23,8 @@ const iterateUsers = (userId) => {
   }
 };
 
-const getUserByEmail = (email) => {
-  const userIds = Object.keys(users);
+const getUserByEmail = (email, database) => {
+  const userIds = Object.keys(database);
   for (const singleUser of userIds) {
     if (email === users[singleUser].email) {
       return users[singleUser];
@@ -44,16 +44,7 @@ const urlsForUser = (id) => {
 };
 
 const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
+
 };
 
 const urlDatabase = {
@@ -205,7 +196,7 @@ app.post("/urls/:id", (req, res) => {
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
-  const user = getUserByEmail(email);
+  const user = getUserByEmail(email, users);
   if (user) {
     if (bcrypt.compareSync(password, user.password)) {
       req.session.userId = user.id;
@@ -240,7 +231,7 @@ app.post("/register", (req, res) => {
     res.status(400).send("Status Code 400: Email or Password is empty");
     return;
   }
-  if (getUserByEmail(email) === null) {
+  if (getUserByEmail(email, users) === null) {
     users[randomId] = {
       id: randomId,
       email: email,
