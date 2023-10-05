@@ -149,6 +149,9 @@ app.get("/register", (req, res) => {
   const templateVars = {
     user: iterateUsers(req.cookies["userId"]),
   };
+  if (Object.keys(req.cookies).length !== 0) {
+    res.redirect("/urls");
+  }
   res.render("register", templateVars);
 });
 
@@ -157,7 +160,6 @@ app.post("/register", (req, res) => {
   const { email, password } = req.body;
   if (email === "" || password === "") {
     res.status(400).send("Status Code 400: Email or Password is empty");
-    console.log(users);
     return;
   }
   if (getUserByEmail(email) === null) {
@@ -178,6 +180,9 @@ app.get("/login", (req, res) => {
   const templateVars = {
     user: iterateUsers(req.cookies["userId"]),
   };
+  if (Object.keys(req.cookies).length !== 0) {
+    res.redirect("/urls");
+  }
   res.render("login", templateVars);
 })
 
