@@ -16,16 +16,17 @@ const iterateUsers = (userId) => {
       return users[userId];
     }
   }
-}
+};
 
 const getUserByEmail = (email) => {
   const userIds = Object.keys(users);
   for (const singleUser of userIds) {
     if (email === users[singleUser].email) {
       return users[singleUser];
-    } 
-  } return null;
-}
+    }
+  }
+  return null;
+};
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -113,9 +114,15 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
-});
+  for (let idCode in urlDatabase) {
+    if (req.params.id === idCode) {
+      const longURL = urlDatabase[req.params.id];
+      res.redirect(longURL);
+      return;
+    } 
+  }
+  res.status(403).send(`Status Code 400: The URL code "${req.params.id}" does not exist.`);
+  });
 
 app.post("/urls/:id/delete", (req, res) => {
   const { id } = req.params;
@@ -137,12 +144,12 @@ app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const user = getUserByEmail(email);
   if (user) {
-    if(user.password === password) {
+    if (user.password === password) {
       res.cookie("userId", user.id);
       res.redirect("/urls");
       return;
-    } 
-  } 
+    }
+  }
   res.status(403).send("Status Code 403: Invalid Email or Password");
 });
 
@@ -170,15 +177,15 @@ app.post("/register", (req, res) => {
     return;
   }
   if (getUserByEmail(email) === null) {
-  users[randomId] = {
-    id: randomId,
-    email: email,
-    password: password,
-  };
-  res.cookie("userId", randomId);
-} else {
-  res.status(400).send("Status Code 400: Email already taken.");
-}
+    users[randomId] = {
+      id: randomId,
+      email: email,
+      password: password,
+    };
+    res.cookie("userId", randomId);
+  } else {
+    res.status(400).send("Status Code 400: Email already taken.");
+  }
   res.redirect("/urls");
 });
 
@@ -191,5 +198,4 @@ app.get("/login", (req, res) => {
     return;
   }
   res.render("login", templateVars);
-})
-
+});
