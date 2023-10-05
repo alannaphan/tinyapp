@@ -2,12 +2,9 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 app.set("view engine", "ejs");
-
-const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-morgan("tiny");
 
 const generateRandomString = () => {
   return Math.random().toString(36).slice(6);
@@ -22,6 +19,14 @@ const iterateUsers = (userId) => {
   }
 }
 
+const getUserByEmail = (email) => {
+  const userIds = Object.keys(users);
+  for (const user of userIds) {
+    if (email === users[user].email) {
+      return users[user];
+    } 
+  } return null;
+}
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -142,12 +147,22 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   const randomId = generateRandomString();
   const { email, password } = req.body;
+  if (email === "" || password === "") {
+    res.status(400).send("Status Code 400: Email or Password is empty");
+    console.log(users);
+    return;
+  }
+  if (getUserByEmail(email) === null) {
   users[randomId] = {
     id: randomId,
     email: email,
     password: password,
   };
-
   res.cookie("userId", randomId);
+} else {
+  res.status(400).send("Status Code 400: Email already taken.");
+  console.log(users);
+}
   res.redirect("/urls");
 });
+
