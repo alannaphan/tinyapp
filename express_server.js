@@ -166,3 +166,10 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
+app.get("/login", (req, res) => {
+  const templateVars = {
+    user: iterateUsers(req.cookies["userId"]),
+  };
+  res.render("login", templateVars);
+})
+

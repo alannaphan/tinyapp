@@ -17,23 +17,8 @@
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
        <% if (!user) { %>
-          <form method="POST" action="/login">
-            <label>Email: </label>
-            <input
-              type="email"
-              name="email"
-            />
-            <label>Password: </label>
-            <input
-            type="password"
-            name="password"
-            />
-            
-            <input 
-            type="submit"
-            value="Login"
-            />
-          </form>
+        <a class="nav-item nav-link" href="/register">Register</a>
+        <a class="nav-item nav-link" href="login">Login</a>
        <% } else { %>
           <p>Logged in as: <%= user.email %></p>
           <form method="POST" action="/logout">
