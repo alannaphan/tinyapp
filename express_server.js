@@ -41,9 +41,16 @@ const users = {
 };
 
 const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
@@ -78,7 +85,10 @@ app.post("/urls", (req, res) => {
     longURL = "http://" + longURL;
   }
   const id = generateRandomString();
-  urlDatabase[id] = longURL;
+  urlDatabase[id] = {
+    longURL: longURL,
+    userID: req.cookies["userId"],
+  } 
   res.redirect(`/urls/${id}`);
 });
 
@@ -94,11 +104,11 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  for (let idCode in urlDatabase) {
+  for (let idCode of Object.keys(urlDatabase)) {
     if (req.params.id === idCode) {
       const templateVars = {
         id: req.params.id,
-        longURL: urlDatabase[req.params.id],
+        longURL: urlDatabase[req.params.id].longURL,
         user: iterateUsers(req.cookies["userId"]),
       };
       res.render("urls_show", templateVars);
@@ -116,7 +126,7 @@ app.get("/urls/:id", (req, res) => {
 app.get("/u/:id", (req, res) => {
   for (let idCode in urlDatabase) {
     if (req.params.id === idCode) {
-      const longURL = urlDatabase[req.params.id];
+      const { longURL } = urlDatabase[req.params.id];
       res.redirect(longURL);
       return;
     } 
@@ -136,7 +146,7 @@ app.post("/urls/:id/update", (req, res) => {
   if (!longURL.includes("http://") && !longURL.includes("https://")) {
     longURL = "http://" + longURL;
   }
-  urlDatabase[id] = longURL;
+  urlDatabase[id].longURL = longURL;
   res.redirect("/urls");
 });
 
