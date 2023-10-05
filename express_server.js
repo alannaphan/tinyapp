@@ -35,9 +35,7 @@ const urlsForUser = (id) => {
     if (urlDatabase[shortCode].userID === id) {
       userURLS[shortCode] = urlDatabase[shortCode];
     }
-  }
-  console.log(userURLS);
-  return userURLS;
+  }  return userURLS;
 };
 
 const users = {
