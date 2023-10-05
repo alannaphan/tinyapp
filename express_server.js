@@ -1,17 +1,30 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
-const cookieParser = require("cookie-parser");
-
-const generateRandomString = () => {
-  return Math.random().toString(36).slice(7);
-};
-
 app.set("view engine", "ejs");
 
+const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+morgan("tiny");
 
+const generateRandomString = () => {
+  return Math.random().toString(36).slice(6);
+};
+
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
@@ -63,7 +76,7 @@ app.get("/urls/:id", (req, res) => {
       const templateVars = {
         id: req.params.id,
         longURL: urlDatabase[req.params.id],
-        username: req.cookies["username"]
+        username: req.cookies["username"],
       };
       res.render("urls_show", templateVars);
       return;
@@ -72,7 +85,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = {
     id: req.params.id,
     longURL: "Error: invalid Id code, website undefined",
-    username: req.cookies["username"]
+    username: req.cookies["username"],
   };
   res.render("urls_show", templateVars);
 });
@@ -114,4 +127,18 @@ app.get("/register", (req, res) => {
     username: req.cookies["username"],
   };
   res.render("register", templateVars);
+});
+
+app.post("/register", (req, res) => {
+  const randomId = generateRandomString();
+  const { email, password } = req.body;
+  users[randomId] = {
+    id: randomId,
+    email: email,
+    password: password,
+  };
+
+  res.cookie("user_id", randomId);
+  console.log(users);
+  res.redirect("/urls");
 });
