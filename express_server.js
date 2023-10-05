@@ -13,6 +13,15 @@ const generateRandomString = () => {
   return Math.random().toString(36).slice(6);
 };
 
+const iterateUsers = (userId) => {
+  for (const ids in users) {
+    if (ids === userId) {
+      // console.log (users[userId]);
+      return users[userId];
+    }
+  }
+}
+
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -25,6 +34,7 @@ const users = {
     password: "dishwasher-funk",
   },
 };
+
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
@@ -48,7 +58,7 @@ app.get("/hello", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"],
+    user: iterateUsers(req.cookies["userId"]),
   };
   res.render("urls_index", templateVars);
 });
@@ -65,7 +75,7 @@ app.post("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
+    user: iterateUsers(req.cookies["userId"]),
   };
   res.render("urls_new", templateVars);
 });
@@ -76,7 +86,7 @@ app.get("/urls/:id", (req, res) => {
       const templateVars = {
         id: req.params.id,
         longURL: urlDatabase[req.params.id],
-        username: req.cookies["username"],
+        user: iterateUsers(req.cookies["userId"]),
       };
       res.render("urls_show", templateVars);
       return;
@@ -85,7 +95,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = {
     id: req.params.id,
     longURL: "Error: invalid Id code, website undefined",
-    username: req.cookies["username"],
+    user: iterateUsers(req.cookies["userId"]),
   };
   res.render("urls_show", templateVars);
 });
@@ -118,13 +128,13 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("userId");
   res.redirect("/urls");
 });
 
 app.get("/register", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
+    user: iterateUsers(req.cookies["userId"]),
   };
   res.render("register", templateVars);
 });
@@ -138,7 +148,6 @@ app.post("/register", (req, res) => {
     password: password,
   };
 
-  res.cookie("user_id", randomId);
-  console.log(users);
+  res.cookie("userId", randomId);
   res.redirect("/urls");
 });
