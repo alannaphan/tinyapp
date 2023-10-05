@@ -27,6 +27,19 @@ const getUserByEmail = (email) => {
   }
   return null;
 };
+
+const urlsForUser = (id) => {
+  const urls = Object.keys(urlDatabase);
+  let userURLS = {};
+  for (const shortCode of urls) {
+    if (urlDatabase[shortCode].userID === id) {
+      userURLS[shortCode] = urlDatabase[shortCode];
+    }
+  }
+  console.log(userURLS);
+  return userURLS;
+};
+
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -69,7 +82,7 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const templateVars = {
-    urls: urlDatabase,
+    urls: urlsForUser(req.cookies["userId"]),
     user: iterateUsers(req.cookies["userId"]),
   };
   res.render("urls_index", templateVars);
@@ -88,7 +101,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[id] = {
     longURL: longURL,
     userID: req.cookies["userId"],
-  } 
+  };
   res.redirect(`/urls/${id}`);
 });
 
@@ -104,7 +117,8 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  for (let idCode of Object.keys(urlDatabase)) {
+  let userURLS = urlsForUser(req.cookies["userId"]);
+  for (let idCode of Object.keys(userURLS)) {
     if (req.params.id === idCode) {
       const templateVars = {
         id: req.params.id,
@@ -117,9 +131,12 @@ app.get("/urls/:id", (req, res) => {
   }
   const templateVars = {
     id: req.params.id,
-    longURL: "Error: invalid Id code, website undefined",
     user: iterateUsers(req.cookies["userId"]),
   };
+  res
+    .status(400)
+    .send(`Status Code 403: The URL ID: ${req.params.id} does not exist.`);
+
   res.render("urls_show", templateVars);
 });
 
@@ -129,25 +146,58 @@ app.get("/u/:id", (req, res) => {
       const { longURL } = urlDatabase[req.params.id];
       res.redirect(longURL);
       return;
-    } 
+    }
   }
-  res.status(403).send(`Status Code 400: The URL code "${req.params.id}" does not exist.`);
-  });
-
-app.post("/urls/:id/delete", (req, res) => {
-  const { id } = req.params;
-  delete urlDatabase[id];
-  res.redirect("/urls");
+  res
+    .status(403)
+    .send(`Status Code 400: The URL code "${req.params.id}" does not exist.`);
 });
 
-app.post("/urls/:id/update", (req, res) => {
-  const { id } = req.params;
-  let { longURL } = req.body;
-  if (!longURL.includes("http://") && !longURL.includes("https://")) {
-    longURL = "http://" + longURL;
+app.post("/urls/:id/delete", (req, res) => {
+  if (Object.keys(req.cookies).length === 0) {
+    res
+      .status(403)
+      .send(`Status Code 403: You need to be logged in to delete the URL`);
+    return;
   }
-  urlDatabase[id].longURL = longURL;
-  res.redirect("/urls");
+  const { id } = req.params;
+  let userURLS = urlsForUser(req.cookies["userId"]);
+
+  if (userURLS[id].userID === req.cookies["userId"]) {
+    delete urlDatabase[id];
+    res.redirect("/urls");
+    return;
+  } else {
+    res.status(403).send(
+        `Status Code 403: You are not the owner of this URL and do not have permission to delete.`
+      );
+  }
+});
+
+app.post("/urls/:id", (req, res) => {
+  if (Object.keys(req.cookies).length === 0) {
+    res
+      .status(403)
+      .send(`Status Code 403: You need to be logged in to edit the URL`);
+    return;
+  }
+  const { id } = req.params;
+  let userURLS = urlsForUser(req.cookies["userId"]);
+
+  if (userURLS[id].userID === req.cookies["userId"]) {
+    const { id } = req.params;
+    let { longURL } = req.body;
+    if (!longURL.includes("http://") && !longURL.includes("https://")) {
+      longURL = "http://" + longURL;
+    }
+    urlDatabase[id].longURL = longURL;
+    res.redirect("/urls");
+    return;
+  } else {
+    res.status(403).send(
+        `Status Code 403: You are not the owner of this URL and do not have permission to edit.`
+      );
+  }
 });
 
 app.post("/login", (req, res) => {
