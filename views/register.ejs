@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
     <!-- Bootstrap CSS -->
     <link
       rel="stylesheet"
@@ -8,39 +14,36 @@
       integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
       crossorigin="anonymous"
     />
-    <title>URL - TinyApp Example</title>
-  </head>
 
+    <title>New URL - TinyApp Example</title>
+  </head>
   <body>
     <%- include('partials/_header') %>
-    <div class="card text-center">
-      <div class="card-header"></div>
-      <div class="card-body">
-        <h5 class="card-title">Registration</h5>
-        <p class="card-text">
-          <form method="POST" action="/register">
-            <label>Email: </label>
-            <input
-              type="email"
-              name="email"
-            />
-            <br>
-            <label>Password: </label>
-            <input
+    <main style="margin: 1em;">
+      <h3>Create Account</h3>
+      <form action="/register" method="POST">
+        <div class="form-group mb-2">
+          <label for="email">Email Address</label>
+          <input
+            class="form-control"
+            type="email"
+            name="email"
+            placeholder="Enter email"
+            style="width: 300px; margin: 1em"
+          />
+
+          <label for="password">Password</label>
+          <input
+            class="form-control"
             type="password"
             name="password"
-            />
-            <br>
-            
-            <input 
-            type="submit"
-            value="Submit"
-            />
-          </form>
-        </p>
-      </div>
-      <div class="card-footer text-muted"></div>
-    </div>
+            placeholder="Password"
+            style="width: 300px; margin: 1em"
+          />
+          <button type="submit" class="btn btn-primary">Register</button>
+        </div>
+      </form>
+    </main>
     <!-- Bootstrap JS -->
     <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"

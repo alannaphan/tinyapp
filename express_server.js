@@ -7,7 +7,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const generateRandomString = () => {
-  return Math.random().toString(36).slice(6);
+  return Math.random().toString(36).slice(2, 8);
 };
 
 const iterateUsers = (userId) => {
@@ -21,9 +21,9 @@ const iterateUsers = (userId) => {
 
 const getUserByEmail = (email) => {
   const userIds = Object.keys(users);
-  for (const user of userIds) {
-    if (email === users[user].email) {
-      return users[user];
+  for (const singleUser of userIds) {
+    if (email === users[singleUser].email) {
+      return users[singleUser];
     } 
   } return null;
 }
@@ -127,14 +127,22 @@ app.post("/urls/:id/update", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  let { username } = req.body;
-  res.cookie("username", username);
-  res.redirect("/urls");
+  const { email, password } = req.body;
+  const user = getUserByEmail(email);
+  if (user) {
+    if(user.password === password) {
+      res.cookie("userId", user.id);
+      res.redirect("/urls");
+      return;
+    } 
+  } 
+  console.log(users, req.cookies);
+  res.status(403).send("Status Code 403: Invalid Email or Password");
 });
 
 app.post("/logout", (req, res) => {
   res.clearCookie("userId");
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 app.get("/register", (req, res) => {
