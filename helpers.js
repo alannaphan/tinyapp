@@ -1,4 +1,7 @@
 const getUserByEmail = (email, database) => {
+  if (email === "") {
+    return undefined;
+  }
   const userIds = Object.keys(database);
   for (const singleUser of userIds) {
     if (email === database[singleUser].email) {
