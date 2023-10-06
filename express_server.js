@@ -5,13 +5,13 @@ app.set("view engine", "ejs");
 
 const bcrypt = require("bcryptjs");
 app.use(express.urlencoded({ extended: true }));
-const cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session');
 app.use(cookieSession({
   name: 'cake',
   keys: ['flan'],
-}))
+}));
 
-const { getUserByEmail, iterateUsers, generateRandomString, urlsForUser} = require("./helpers")
+const { getUserByEmail, iterateUsers, generateRandomString, urlsForUser} = require("./helpers");
 
 const users = {
 };
@@ -124,8 +124,8 @@ app.post("/urls/:id/delete", (req, res) => {
     return;
   } else {
     res.status(403).send(
-        `Status Code 403: You are not the owner of this URL and do not have permission to delete.`
-      );
+      `Status Code 403: You are not the owner of this URL and do not have permission to delete.`
+    );
   }
 });
 
@@ -150,8 +150,8 @@ app.post("/urls/:id", (req, res) => {
     return;
   } else {
     res.status(403).send(
-        `Status Code 403: You are not the owner of this URL and do not have permission to edit.`
-      );
+      `Status Code 403: You are not the owner of this URL and do not have permission to edit.`
+    );
   }
 });
 
